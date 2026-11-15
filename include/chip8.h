@@ -2,8 +2,6 @@
 
 #include <cstdint>
 
-#define ROM_ADDRESS 0x200
-
 // Chip 8 Architect
 typedef struct{
     uint8_t registers[16]{};

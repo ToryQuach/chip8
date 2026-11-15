@@ -2,7 +2,6 @@
 
 #include <cstdint>
 
-#define CHARSET_ADDRESS 0x050
 #define FONTSET_SIZE 80
 
 uint8_t FONTSET[FONTSET_SIZE] = 
