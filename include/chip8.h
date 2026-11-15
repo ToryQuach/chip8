@@ -1,20 +1,20 @@
 #pragma once
 
-#include <cstdint>
+#include <stdint.h>
 
 // Chip 8 Architect
 typedef struct{
-    uint8_t registers[16]{};
-    uint8_t memory[4096]{};
-    uint16_t index{};
-    uint16_t pc{};
-    uint16_t stack[16]{};
-    uint8_t sp{};
-    uint8_t delay_timer{};
-    uint8_t sound_timer{};
-    uint8_t inputs[16]{};
-    uint32_t display[64*32]{};
-    uint16_t opcode{};
+    uint8_t registers[16];
+    uint8_t memory[4096];
+    uint16_t index;
+    uint16_t pc;
+    uint16_t stack[16];
+    uint8_t sp;
+    uint8_t delay_timer;
+    uint8_t sound_timer;
+    uint8_t inputs[16];
+    uint32_t display[64*32];
+    uint16_t opcode;
 } Chip8;
 
 // Initialize Chip 8
