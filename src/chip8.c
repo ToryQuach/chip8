@@ -68,10 +68,14 @@ void OP_00EE(Chip8* c8){
     c8->pc = (c8->stack)[c8->sp];
 }
 void OP_1nnn(Chip8* c8){
-
+    uint16_t address = c8->opcode & 0x0FFF;
+    c8->pc = address;
 }
 void OP_2nnn(Chip8* c8){
-
+    uint16_t address = c8->opcode & 0x0FFF;
+    (c8->stack)[c8->sp] = c8->pc;
+    ++(c8->sp);
+    c8->pc = address;
 }
 void OP_3xkk(Chip8* c8){
 
