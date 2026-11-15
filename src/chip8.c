@@ -202,13 +202,35 @@ void OP_Bnnn(Chip8* c8){
     c8->pc = c8->registers[0] + address;
 }
 void OP_Cxkk(Chip8* c8){
-    uint8_t Vx = (c8->opcode & 0x0F00) > 8;
+    uint8_t Vx = (c8->opcode & 0x0F00) >> 8;
     uint8_t byte = (c8->opcode & 0x00FF);
 
     c8->registers[Vx] = random_u8() & byte;
 }
 void OP_Dxyn(Chip8* c8){
+    uint8_t Vx = (c8->opcode & 0x0F00) >> 8;
+    uint8_t Vy = (c8->opcode & 0x00F0) >> 4;
+    uint8_t height = (c8->opcode & 0x000F);
 
+    uint8_t xPos = (c8->registers[Vx]) % DISPLAY_WIDTH;
+    uint8_t yPos = (c8->registers[Vy]) % DISPLAY_HEIGHT;
+    
+    c8->registers[0xF] = 0;
+
+    for (int row = 0; row < height; ++row){
+        uint8_t spriteByte = c8->memory[c8->index + row];
+        for (int col = 0; col < 8; ++col){
+            uint8_t spritePixel = spriteByte & (0x80 >> col);
+            uint8_t* screenPixel = &(c8->display[(yPos + row) * DISPLAY_WIDTH + (xPos + col)]);
+
+            if (spritePixel){
+                if (*screenPixel == 0xFFFFFFFF)
+                    c8->registers[0xF] = 1;
+
+                *screenPixel ^= 0xFFFFFFFF;
+            }
+        }
+    }
 }
 void OP_Ex9E(Chip8* c8){
 
