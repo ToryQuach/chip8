@@ -2,18 +2,24 @@
 
 #include <stdint.h>
 
+#define NUM_OF_REGISTERS 16
+#define MEMORY_SIZE 4096
+#define STACK_SIZE 16
+#define INPUT_SIZE 16
+#define DISPLAY_RESOLUTION 64 * 32
+
 // Chip 8 Architect
 typedef struct{
-    uint8_t registers[16];
-    uint8_t memory[4096];
+    uint8_t registers[NUM_OF_REGISTERS];
+    uint8_t memory[MEMORY_SIZE];
     uint16_t index;
     uint16_t pc;
-    uint16_t stack[16];
+    uint16_t stack[STACK_SIZE];
     uint8_t sp;
     uint8_t delay_timer;
     uint8_t sound_timer;
-    uint8_t inputs[16];
-    uint32_t display[64*32];
+    uint8_t inputs[INPUT_SIZE];
+    uint32_t display[DISPLAY_RESOLUTION];
     uint16_t opcode;
 } Chip8;
 
@@ -21,7 +27,7 @@ typedef struct{
 void init_chip8(Chip8* c8);
 
 // load ROM
-void LoadROM(Chip8* c8, char const* filename);
+int LoadROM(Chip8* c8, char const* filename);
 
 // Instructions
 
