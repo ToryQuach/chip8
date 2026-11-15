@@ -1,5 +1,6 @@
 #include "addresses.h"
 #include "chip8.h"
+#include "fontset.h"
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -10,8 +11,12 @@ void init_chip8(Chip8* c8){
     
     // Set pc to ROM start
     c8->pc = ROM_ADDRESS;
+
+    // Load font
+    for (long i = 0; i < FONTSET_SIZE; ++i)
+        c8->memory[CHARSET_ADDRESS + i] = FONTSET[i];
 }
-void LoadROM(Chip8* c8, char const* filename){
+int LoadROM(Chip8* c8, char const* filename){
     // Open file in read byte mode
     FILE* file = fopen(filename, "rb");
     if (file == NULL){
@@ -49,9 +54,8 @@ void LoadROM(Chip8* c8, char const* filename){
     fclose(file);
 
     // Load data to ROM
-    for (long i = 0; i < size; ++i){
+    for (long i = 0; i < size; ++i)
         c8->memory[ROM_ADDRESS + i] = buffer[i];
-    }
 
     free(buffer);
     return 0;
