@@ -1,6 +1,7 @@
 #include "addresses.h"
 #include "chip8.h"
 #include "fontset.h"
+#include "utils.h"
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -65,7 +66,7 @@ void OP_00E0(Chip8* c8){
 }
 void OP_00EE(Chip8* c8){
     --(c8->sp);
-    c8->pc = (c8->stack)[c8->sp];
+    c8->pc = c8->stack[c8->sp];
 }
 void OP_1nnn(Chip8* c8){
     uint16_t address = c8->opcode & 0x0FFF;
@@ -73,63 +74,138 @@ void OP_1nnn(Chip8* c8){
 }
 void OP_2nnn(Chip8* c8){
     uint16_t address = c8->opcode & 0x0FFF;
-    (c8->stack)[c8->sp] = c8->pc;
+    c8->stack[c8->sp] = c8->pc;
     ++(c8->sp);
     c8->pc = address;
 }
 void OP_3xkk(Chip8* c8){
+    uint8_t Vx = (c8->opcode & 0x0F00) >> 8;
+    uint8_t byte = c8->opcode & 0x00FF;
 
+    if (c8->registers[Vx] == byte)
+        c8->pc += 2;
 }
 void OP_4xkk(Chip8* c8){
+    uint8_t Vx = (c8->opcode & 0x0F00) >> 8;
+    uint8_t byte = c8->opcode & 0x00FF;
 
+    if (c8->registers[Vx] != byte)
+        c8->pc += 2;
 }
 void OP_5xy0(Chip8* c8){
+    uint8_t Vx = (c8->opcode & 0x0F00) >> 8;
+    uint8_t Vy = (c8->opcode & 0x00F0) >> 4;
 
+    if (c8->registers[Vx] == (c8->registers)[Vy])
+        c8->pc += 2;
 }
 void OP_6xkk(Chip8* c8){
+    uint8_t Vx = (c8->opcode & 0x0F00) >> 8;
+    uint8_t byte = c8->opcode & 0x00FF;
 
+    c8->registers[Vx] = byte;
 }
 void OP_7xkk(Chip8* c8){
+    uint8_t Vx = (c8->opcode & 0x0F00) >> 8;
+    uint8_t byte = c8->opcode & 0x00FF;
 
+    c8->registers[Vx] += byte;
 }
 void OP_8xy0(Chip8* c8){
+    uint8_t Vx = (c8->opcode & 0x0F00) >> 8;
+    uint8_t Vy = (c8->opcode & 0x00F0) >> 4;
 
+    c8->registers[Vx] = c8->registers[Vy];
 }
 void OP_8xy1(Chip8* c8){
+    uint8_t Vx = (c8->opcode & 0x0F00) >> 8;
+    uint8_t Vy = (c8->opcode & 0x00F0) >> 4;
+
+    c8->registers[Vx] |= c8->registers[Vy];
 
 }
 void OP_8xy2(Chip8* c8){
+    uint8_t Vx = (c8->opcode & 0x0F00) >> 8;
+    uint8_t Vy = (c8->opcode & 0x00F0) >> 4;
 
+    c8->registers[Vx] &= c8->registers[Vy];
 }
 void OP_8xy3(Chip8* c8){
+    uint8_t Vx = (c8->opcode & 0x0F00) >> 8;
+    uint8_t Vy = (c8->opcode & 0x00F0) >> 4;
 
+    c8->registers[Vx] ^= c8->registers[Vy];
 }
 void OP_8xy4(Chip8* c8){
+    uint8_t Vx = (c8->opcode & 0x0F00) >> 8;
+    uint8_t Vy = (c8->opcode & 0x00F0) >> 4;
 
+    uint16_t sum = c8->registers[Vx] + c8->registers[Vy];
+    if (sum > 255)
+        c8->registers[0xF] = 1;
+    else
+        c8->registers[0xF] = 0;
+
+    c8->registers[Vx] = sum & 0xFF;
 }
 void OP_8xy5(Chip8* c8){
+    uint8_t Vx = (c8->opcode & 0x0F00) >> 8;
+    uint8_t Vy = (c8->opcode & 0x00F0) >> 4;
 
+    if (c8->registers[Vx] > c8->registers[Vy])
+        c8->registers[0xF] = 1;
+    else
+        c8->registers[0xF] = 0;
+
+    c8->registers[Vx] -= c8->registers[Vy];
 }
 void OP_8xy6(Chip8* c8){
+    uint8_t Vx = (c8->opcode & 0x0F00) >> 8;
 
+    c8->registers[0xF] = c8->registers[Vx] & 0x1;
+
+    c8->registers[Vx] >>= 1;
 }
 void OP_8xy7(Chip8* c8){
+    uint8_t Vx = (c8->opcode & 0x0F00) >> 8;
+    uint8_t Vy = (c8->opcode & 0x00F0) >> 4;
 
+    if (c8->registers[Vy] > c8->registers[Vx])
+        c8->registers[0xF] = 1;
+    else
+        c8->registers[0xF] = 0;
+    
+    c8->registers[Vy] = c8->registers[Vy] - c8->registers[Vx];
 }
 void OP_8xyE(Chip8* c8){
+    uint8_t Vx = (c8->opcode & 0x0F00) >> 8;
 
+    c8->registers[0xF] = (c8->registers[Vx] & 0x80) >> 7;
+
+    c8->registers[Vx] <<= 1;
 }
 void OP_9xy0(Chip8* c8){
+    uint8_t Vx = (c8->opcode & 0x0F00) >> 8;
+    uint8_t Vy = (c8->opcode & 0x00F0) >> 4;
 
+    if (c8->registers[Vx] != c8->registers[Vy])
+        c8->pc += 2;
 }
 void OP_Annn(Chip8* c8){
+    uint16_t address = c8->opcode & 0x0FFF;
 
+    c8->index = address;
 }
 void OP_Bnnn(Chip8* c8){
+    uint16_t address = c8->opcode & 0x0FFF;
 
+    c8->pc = c8->registers[0] + address;
 }
 void OP_Cxkk(Chip8* c8){
+    uint8_t Vx = (c8->opcode & 0x0F00) > 8;
+    uint8_t byte = (c8->opcode & 0x00FF);
 
+    c8->registers[Vx] = random_u8() & byte;
 }
 void OP_Dxyn(Chip8* c8){
 
