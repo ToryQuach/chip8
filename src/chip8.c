@@ -60,3 +60,106 @@ int LoadROM(Chip8* c8, char const* filename){
     free(buffer);
     return 0;
 }
+void OP_00E0(Chip8* c8){
+    memset(c8->display, 0, DISPLAY_RESOLUTION);
+}
+void OP_00EE(Chip8* c8){
+    --(c8->sp);
+    c8->pc = (c8->stack)[c8->sp];
+}
+void OP_1nnn(Chip8* c8){
+
+}
+void OP_2nnn(Chip8* c8){
+
+}
+void OP_3xkk(Chip8* c8){
+
+}
+void OP_4xkk(Chip8* c8){
+
+}
+void OP_5xy0(Chip8* c8){
+
+}
+void OP_6xkk(Chip8* c8){
+
+}
+void OP_7xkk(Chip8* c8){
+
+}
+void OP_8xy0(Chip8* c8){
+
+}
+void OP_8xy1(Chip8* c8){
+
+}
+void OP_8xy2(Chip8* c8){
+
+}
+void OP_8xy3(Chip8* c8){
+
+}
+void OP_8xy4(Chip8* c8){
+
+}
+void OP_8xy5(Chip8* c8){
+
+}
+void OP_8xy6(Chip8* c8){
+
+}
+void OP_8xy7(Chip8* c8){
+
+}
+void OP_8xyE(Chip8* c8){
+
+}
+void OP_9xy0(Chip8* c8){
+
+}
+void OP_Annn(Chip8* c8){
+
+}
+void OP_Bnnn(Chip8* c8){
+
+}
+void OP_Cxkk(Chip8* c8){
+
+}
+void OP_Dxyn(Chip8* c8){
+
+}
+void OP_Ex9E(Chip8* c8){
+
+}
+void OP_ExA1(Chip8* c8){
+
+}
+void OP_Fx07(Chip8* c8){
+
+}
+void OP_Fx0A(Chip8* c8){
+
+}
+void OP_Fx15(Chip8* c8){
+
+}
+void OP_Fx18(Chip8* c8){
+
+}
+void OP_Fx1E(Chip8* c8){
+
+}
+void OP_Fx29(Chip8* c8){
+
+}
+void OP_Fx33(Chip8* c8){
+
+}
+void OP_Fx55(Chip8* c8){
+
+}
+void OP_Fx65(Chip8* c8){
+
+}
