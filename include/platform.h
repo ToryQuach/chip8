@@ -29,7 +29,7 @@ typedef struct{
 } Platform;
 
 // Initialize Platform
-void init_platform(Platform* p, char const* title, int* windowWidth, int* windowHeight, int* textureWidth, int* textureHeight);
+int init_platform(Platform* p, char const* title, int windowWidth, int windowHeight, int textureWidth, int textureHeight);
 
 // Distructor Platform
 void destroy_platform(Platform* p);
@@ -38,4 +38,4 @@ void destroy_platform(Platform* p);
 void update_platform(Platform* p, void const* buffer, int* pitch);
 
 // Proccess Input
-bool proccess_input(Platform* p, uint8_t* keys);
+bool proccess_input(uint8_t* keys);

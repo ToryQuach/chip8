@@ -10,20 +10,24 @@
 #define DISPLAY_HEIGHT 32
 #define DISPLAY_RESOLUTION DISPLAY_WIDTH*DISPLAY_HEIGHT
 
+// Type def chip 8
+typedef struct Chip8 Chip8;
+
 // Type def chip8 function type
-typedef void (*chip8OP)(void);
+typedef void (*chip8OP)(Chip8*);
 
 // Type def chip8 function table
 typedef struct{
     chip8OP table[0xF + 1];
-    chip8OP table0[0xE + 1];
-    chip8OP table8[0xE + 1];
-    chip8OP tableE[0xE + 1];
-    chip8OP tableF[0x65 + 1];
+    // Sub-tables are indexed by a nibble (0x0 - 0xF), so they need 16 slots.
+    chip8OP table0[0x10];
+    chip8OP table8[0x10];
+    chip8OP tableE[0x10];
+    chip8OP tableF[0xFF + 1];
 } chip8OPTable;
 
 // Chip 8 Architect
-typedef struct{
+struct Chip8{
     uint8_t registers[NUM_OF_REGISTERS];
     uint8_t memory[MEMORY_SIZE];
     uint16_t index;
@@ -36,16 +40,16 @@ typedef struct{
     uint32_t display[DISPLAY_RESOLUTION];
     uint16_t opcode;
     chip8OPTable opTable;
-} Chip8;
+};
 
 // Initialize Chip 8
 void init_chip8(Chip8* c8);
 
 // load ROM
-int LoadROM(Chip8* c8, char const* filename);
+int load_ROM(Chip8* c8, char const* filename);
 
 // Cycle
-void Cycle(Chip8* c8);
+void cycle(Chip8* c8);
 
 // Instructions
 
@@ -125,10 +129,10 @@ void OP_NULL(Chip8* c8);
 // Initialize function table
 void init_chip8FuncTable(chip8OPTable* t);
 // Get function from table 0
-void get_from_table0(chip8OPTable* t, Chip8* c8);
+void get_from_table0(Chip8* c8);
 // Get function from table 8
-void get_from_table8(chip8OPTable* t, Chip8* c8);
+void get_from_table8(Chip8* c8);
 // Get function from table E
-void get_from_tableE(chip8OPTable* t, Chip8* c8);
+void get_from_tableE(Chip8* c8);
 // Get function from table F
-void get_from_tableF(chip8OPTable* t, Chip8* c8);
+void get_from_tableF(Chip8* c8);

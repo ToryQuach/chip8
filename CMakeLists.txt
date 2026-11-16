@@ -11,6 +11,9 @@ find_package(SDL3 REQUIRED CONFIG)
 add_executable(chip8 
     src/main.c 
     src/chip8.c
+    src/platform.c
+    src/utils.c
 )
 
-target_include_directories(chip8 PRIVATE include SDL3::SDL3)
+target_link_libraries(chip8 PRIVATE SDL3::SDL3)
+target_include_directories(chip8 PRIVATE include)

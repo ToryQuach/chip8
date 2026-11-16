@@ -20,7 +20,7 @@ void init_chip8(Chip8* c8){
     // Initialize the OP table
     init_chip8FuncTable(&c8->opTable);
 }
-int LoadROM(Chip8* c8, char const* filename){
+int load_ROM(Chip8* c8, char const* filename){
     // Open file in read byte mode
     FILE* file = fopen(filename, "rb");
     if (file == NULL){
@@ -64,12 +64,12 @@ int LoadROM(Chip8* c8, char const* filename){
     free(buffer);
     return 0;
 }
-void Cycle(Chip8* c8){
+void cycle(Chip8* c8){
     c8->opcode = ((c8->memory[c8->pc]) << 8) | (c8->memory[c8->pc + 1]);
     
     c8->pc += 2;
 
-    c8->opTable.table[(c8->opcode & 0xF000) >> 12]();
+    c8->opTable.table[(c8->opcode & 0xF000) >> 12](c8);
 
     if (c8->delay_timer > 0)
         --(c8->delay_timer);
@@ -78,7 +78,7 @@ void Cycle(Chip8* c8){
         --(c8->sound_timer);
 }
 void OP_00E0(Chip8* c8){
-    memset(c8->display, 0, DISPLAY_RESOLUTION);
+    memset(c8->display, 0, sizeof(c8->display));
 }
 void OP_00EE(Chip8* c8){
     --(c8->sp);
@@ -90,6 +90,8 @@ void OP_1nnn(Chip8* c8){
 }
 void OP_2nnn(Chip8* c8){
     uint16_t address = c8->opcode & 0x0FFF;
+    if (c8->sp >= STACK_SIZE)
+        return;
     c8->stack[c8->sp] = c8->pc;
     ++(c8->sp);
     c8->pc = address;
@@ -168,7 +170,7 @@ void OP_8xy5(Chip8* c8){
     uint8_t Vx = (c8->opcode & 0x0F00) >> 8;
     uint8_t Vy = (c8->opcode & 0x00F0) >> 4;
 
-    if (c8->registers[Vx] > c8->registers[Vy])
+    if (c8->registers[Vx] >= c8->registers[Vy])
         c8->registers[0xF] = 1;
     else
         c8->registers[0xF] = 0;
@@ -186,12 +188,12 @@ void OP_8xy7(Chip8* c8){
     uint8_t Vx = (c8->opcode & 0x0F00) >> 8;
     uint8_t Vy = (c8->opcode & 0x00F0) >> 4;
 
-    if (c8->registers[Vy] > c8->registers[Vx])
+    if (c8->registers[Vy] >= c8->registers[Vx])
         c8->registers[0xF] = 1;
     else
         c8->registers[0xF] = 0;
     
-    c8->registers[Vy] = c8->registers[Vy] - c8->registers[Vx];
+    c8->registers[Vx] = c8->registers[Vy] - c8->registers[Vx];
 }
 void OP_8xyE(Chip8* c8){
     uint8_t Vx = (c8->opcode & 0x0F00) >> 8;
@@ -237,7 +239,9 @@ void OP_Dxyn(Chip8* c8){
         uint8_t spriteByte = c8->memory[c8->index + row];
         for (int col = 0; col < 8; ++col){
             uint8_t spritePixel = spriteByte & (0x80 >> col);
-            uint8_t* screenPixel = &(c8->display[(yPos + row) * DISPLAY_WIDTH + (xPos + col)]);
+            int py = (yPos + row) % DISPLAY_HEIGHT;
+            int px = (xPos + col) % DISPLAY_WIDTH;
+            uint32_t* screenPixel = &c8->display[py * DISPLAY_WIDTH + px];
 
             if (spritePixel){
                 if (*screenPixel == 0xFFFFFFFF)
@@ -341,12 +345,12 @@ void OP_Fx33(Chip8* c8){
 }
 void OP_Fx55(Chip8* c8){
     uint8_t Vx = (c8->opcode & 0x0F00) >> 8;
-    for (int i = 0; i < Vx; ++i)
+    for (int i = 0; i <= Vx; ++i)
         c8->memory[c8->index + i] = c8->registers[i];
 }
 void OP_Fx65(Chip8* c8){
     uint8_t Vx = (c8->opcode & 0x0F00) >> 8;
-    for (int i = 0; i < Vx; ++i)
+    for (int i = 0; i <= Vx; ++i)
         c8->registers[i] = c8->memory[c8->index + i];
 }
 void OP_NULL(Chip8* c8){}
@@ -368,14 +372,14 @@ void init_chip8FuncTable(chip8OPTable* t){
     t->table[0xE] = &get_from_tableE;
     t->table[0xF] = &get_from_tableF;
 
-    for (int i = 0; i <= 0xE; ++i){
+    for (int i = 0; i < 0x10; ++i){
         t->table0[i] = &OP_NULL;
         t->table8[i] = &OP_NULL;
         t->tableE[i] = &OP_NULL;
     }
 
     t->table0[0x0] = &OP_00E0;
-    t->table0[0xE] = &OP_00EE;
+    t->tableE[0xE] = &OP_Ex9E;
     
     t->table8[0x0] = &OP_8xy0;
     t->table8[0x1] = &OP_8xy1;
@@ -388,9 +392,9 @@ void init_chip8FuncTable(chip8OPTable* t){
     t->table8[0xE] = &OP_8xyE;
 
     t->tableE[0x1] = &OP_ExA1;
-    t->table0[0xE] = &OP_Ex9E;
+    t->table0[0xE] = &OP_00EE;
 
-    for (int i = 0; i <= 0x65; ++i)
+    for (int i = 0; i <= 0xFF; ++i)
         t->tableF[i] = &OP_NULL;
 
     t->tableF[0x07] = &OP_Fx07;
@@ -403,15 +407,15 @@ void init_chip8FuncTable(chip8OPTable* t){
     t->tableF[0x55] = &OP_Fx55;
     t->tableF[0x65] = &OP_Fx65;
 }
-void get_from_table0(chip8OPTable* t, Chip8* c8){
-    t->table0[c8->opcode & 0x000F]();
+void get_from_table0(Chip8* c8){
+    c8->opTable.table0[c8->opcode & 0x000F](c8);
 }
-void get_from_table8(chip8OPTable* t, Chip8* c8){
-    t->table8[c8->opcode & 0x000F]();
+void get_from_table8(Chip8* c8){
+    c8->opTable.table8[c8->opcode & 0x000F](c8);
 }
-void get_from_tableE(chip8OPTable* t, Chip8* c8){
-    t->tableE[c8->opcode & 0x000F]();
+void get_from_tableE(Chip8* c8){
+    c8->opTable.tableE[c8->opcode & 0x000F](c8);
 }
-void get_from_tableF(chip8OPTable* t, Chip8* c8){
-    t->tableF[c8->opcode & 0x000F]();
+void get_from_tableF(Chip8* c8){
+    c8->opTable.tableF[c8->opcode & 0x00FF](c8);
 }

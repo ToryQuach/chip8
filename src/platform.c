@@ -1,12 +1,12 @@
 #include "platform.h"
 #include <string.h>
 
-void init_platform(Platform* p, char const* title, int* windowWidth, int* windowHeight, int* textureWidth, int* textureHeight){
+int init_platform(Platform* p, char const* title, int windowWidth, int windowHeight, int textureWidth, int textureHeight){
     SDL_Init(SDL_INIT_VIDEO);
 
-    memset(p, 0, sizeof(p));
+    memset(p, 0, sizeof(*p));
 
-    p->window = SDL_CreateWindow(title, *windowWidth, *windowHeight, 0);
+    p->window = SDL_CreateWindow(title, windowWidth, windowHeight, 0);
     if (!(p->window)) {
         SDL_Log("SDL_CreateWindow failed: %s", SDL_GetError());
         SDL_Quit();
@@ -26,11 +26,13 @@ void init_platform(Platform* p, char const* title, int* windowWidth, int* window
     );
     if (!(p->texture)) {
         SDL_Log("SDL_CreateTexture failed: %s", SDL_GetError());
-        SDL_DestroyWindow(p->renderer);
+        SDL_DestroyRenderer(p->renderer);
         SDL_DestroyWindow(p->window);
         SDL_Quit();
         return -1;
     }
+
+    return 0;
 }
 void destroy_platform(Platform* p){
     SDL_DestroyTexture(p->texture);
@@ -45,7 +47,7 @@ void update_platform(Platform* p, void const* buffer, int* pitch){
     SDL_RenderPresent(p->renderer);
 }
 
-bool proccess_input(Platform* p, uint8_t* keys){
+bool proccess_input(uint8_t* keys){
     bool quit = false;
     SDL_Event event;
 
