@@ -233,35 +233,103 @@ void OP_Dxyn(Chip8* c8){
     }
 }
 void OP_Ex9E(Chip8* c8){
+    uint8_t Vx = (c8->opcode & 0x0F00) >> 8;
 
+    uint8_t key = c8->registers[Vx];
+    if (c8->inputs[key])
+        c8->pc += 2;
 }
 void OP_ExA1(Chip8* c8){
+    uint8_t Vx = (c8->opcode & 0x0F00) >> 8;
+
+    uint8_t key = c8->registers[Vx];
+    if (!(c8->inputs[key]))
+        c8->pc += 2;
 
 }
 void OP_Fx07(Chip8* c8){
+    uint8_t Vx = (c8->opcode & 0x0F00) >> 8;
 
+    c8->registers[Vx] = c8->delay_timer;
 }
 void OP_Fx0A(Chip8* c8){
-
+    uint8_t Vx = (c8->opcode & 0x0F00) >> 8;
+    if (c8->inputs[0])
+        c8->registers[Vx] = 0;
+    else if (c8->inputs[1])
+        c8->registers[Vx] = 1;
+    else if (c8->inputs[2])
+        c8->registers[Vx] = 2;
+    else if (c8->inputs[3])
+        c8->registers[Vx] = 3;
+    else if (c8->inputs[4])
+        c8->registers[Vx] = 4;
+    else if (c8->inputs[5])
+        c8->registers[Vx] = 5;
+    else if (c8->inputs[6])
+        c8->registers[Vx] = 6;
+    else if (c8->inputs[7])
+        c8->registers[Vx] = 7;
+    else if (c8->inputs[8])
+        c8->registers[Vx] = 8;
+    else if (c8->inputs[9])
+        c8->registers[Vx] = 9;
+    else if (c8->inputs[10])
+        c8->registers[Vx] = 10;
+    else if (c8->inputs[11])
+        c8->registers[Vx] = 11;
+    else if (c8->inputs[12])
+        c8->registers[Vx] = 12;
+    else if (c8->inputs[13])
+        c8->registers[Vx] = 13;
+    else if (c8->inputs[14])
+        c8->registers[Vx] = 14;
+    else if (c8->inputs[15])
+        c8->registers[Vx] = 15;
+    else
+        c8->pc -= 2;
 }
 void OP_Fx15(Chip8* c8){
+    uint8_t Vx = (c8->opcode & 0x0F00) >> 8;
 
+    c8->delay_timer = c8->registers[Vx];
 }
 void OP_Fx18(Chip8* c8){
+    uint8_t Vx = (c8->opcode & 0x0F00) >> 8;
+
+    c8->sound_timer = c8->registers[Vx];
 
 }
 void OP_Fx1E(Chip8* c8){
+    uint8_t Vx = (c8->opcode & 0x0F00) >> 8;
 
+    c8->index += c8->registers[Vx];
 }
 void OP_Fx29(Chip8* c8){
+    uint8_t Vx = (c8->opcode & 0x0F00) >> 8;
+    uint8_t digit = c8->registers[Vx];
 
+    c8->index = CHARSET_ADDRESS + (5*digit);
 }
 void OP_Fx33(Chip8* c8){
+    uint8_t Vx = (c8->opcode & 0x0F00) >> 8;
+    uint8_t value = c8->registers[Vx];
 
+    c8->memory[c8->index + 2] = value % 10;
+    value /= 10;
+
+    c8->memory[c8->index + 1] = value % 10;
+    value /= 10;
+
+    c8->memory[c8->index] = value % 10;
 }
 void OP_Fx55(Chip8* c8){
-
+    uint8_t Vx = (c8->opcode & 0x0F00) >> 8;
+    for (int i = 0; i < Vx; ++i)
+        c8->memory[c8->index + i] = c8->registers[i];
 }
 void OP_Fx65(Chip8* c8){
-
+    uint8_t Vx = (c8->opcode & 0x0F00) >> 8;
+    for (int i = 0; i < Vx; ++i)
+        c8->registers[i] = c8->memory[c8->index + i];
 }
