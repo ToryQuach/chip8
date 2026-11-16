@@ -61,6 +61,11 @@ int LoadROM(Chip8* c8, char const* filename){
     free(buffer);
     return 0;
 }
+void Cycle(Chip8* c8){
+    c8->opcode = ((c8->memory[c8->pc]) << 8) | (c8->memory[c8->pc + 1]);
+    
+    c8->pc += 2;
+}
 void OP_00E0(Chip8* c8){
     memset(c8->display, 0, DISPLAY_RESOLUTION);
 }
@@ -333,3 +338,4 @@ void OP_Fx65(Chip8* c8){
     for (int i = 0; i < Vx; ++i)
         c8->registers[i] = c8->memory[c8->index + i];
 }
+void OP_NULL(Chip8* c8){}

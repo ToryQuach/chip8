@@ -31,6 +31,9 @@ void init_chip8(Chip8* c8);
 // load ROM
 int LoadROM(Chip8* c8, char const* filename);
 
+// Cycle
+void Cycle(Chip8* c8);
+
 // Instructions
 
 // CLS
@@ -101,3 +104,5 @@ void OP_Fx33(Chip8* c8);
 void OP_Fx55(Chip8* c8);
 // LD Vx, [I]
 void OP_Fx65(Chip8* c8);
+// NULL OPCODE
+void OP_NULL(Chip8* c8);
