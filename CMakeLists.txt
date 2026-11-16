@@ -6,9 +6,11 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+find_package(SDL3 REQUIRED CONFIG)
+
 add_executable(chip8 
     src/main.c 
     src/chip8.c
 )
 
-target_include_directories(chip8 PRIVATE include)
+target_include_directories(chip8 PRIVATE include SDL3::SDL3)
