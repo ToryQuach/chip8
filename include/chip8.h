@@ -10,6 +10,18 @@
 #define DISPLAY_HEIGHT 32
 #define DISPLAY_RESOLUTION DISPLAY_WIDTH*DISPLAY_HEIGHT
 
+// Type def chip8 function type
+typedef void (*chip8OP)(void);
+
+// Type def chip8 function table
+typedef struct{
+    chip8OP table[0xF + 1];
+    chip8OP table0[0xE + 1];
+    chip8OP table8[0xE + 1];
+    chip8OP tableE[0xE + 1];
+    chip8OP tableF[0x65 + 1];
+} chip8OPTable;
+
 // Chip 8 Architect
 typedef struct{
     uint8_t registers[NUM_OF_REGISTERS];
@@ -23,6 +35,7 @@ typedef struct{
     uint8_t inputs[INPUT_SIZE];
     uint32_t display[DISPLAY_RESOLUTION];
     uint16_t opcode;
+    chip8OPTable funcTable;
 } Chip8;
 
 // Initialize Chip 8
@@ -106,3 +119,16 @@ void OP_Fx55(Chip8* c8);
 void OP_Fx65(Chip8* c8);
 // NULL OPCODE
 void OP_NULL(Chip8* c8);
+
+// Operators mapping functions
+
+// Initialize function table
+void init_chip8FuncTable(chip8OPTable* t);
+// Get function from table 0
+void get_from_table0(chip8OPTable* t, Chip8* c8);
+// Get function from table 8
+void get_from_table8(chip8OPTable* t, Chip8* c8);
+// Get function from table E
+void get_from_tableE(chip8OPTable* t, Chip8* c8);
+// Get function from table F
+void get_from_tableF(chip8OPTable* t, Chip8* c8);
