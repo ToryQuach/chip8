@@ -35,7 +35,7 @@ typedef struct{
     uint8_t inputs[INPUT_SIZE];
     uint32_t display[DISPLAY_RESOLUTION];
     uint16_t opcode;
-    chip8OPTable funcTable;
+    chip8OPTable opTable;
 } Chip8;
 
 // Initialize Chip 8

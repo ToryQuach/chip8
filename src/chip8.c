@@ -16,6 +16,9 @@ void init_chip8(Chip8* c8){
     // Load font
     for (long i = 0; i < FONTSET_SIZE; ++i)
         c8->memory[CHARSET_ADDRESS + i] = FONTSET[i];
+
+    // Initialize the OP table
+    init_chip8FuncTable(&c8->opTable);
 }
 int LoadROM(Chip8* c8, char const* filename){
     // Open file in read byte mode
@@ -66,6 +69,13 @@ void Cycle(Chip8* c8){
     
     c8->pc += 2;
 
+    c8->opTable.table[(c8->opcode & 0xF000) >> 12]();
+
+    if (c8->delay_timer > 0)
+        --(c8->delay_timer);
+    
+    if (c8->sound_timer > 0)
+        --(c8->sound_timer);
 }
 void OP_00E0(Chip8* c8){
     memset(c8->display, 0, DISPLAY_RESOLUTION);
@@ -340,7 +350,7 @@ void OP_Fx65(Chip8* c8){
         c8->registers[i] = c8->memory[c8->index + i];
 }
 void OP_NULL(Chip8* c8){}
-void init_chip8FuncTable(chip8FuncTable* t){
+void init_chip8FuncTable(chip8OPTable* t){
     t->table[0x0] = &get_from_table0;
     t->table[0x1] = &OP_1nnn;
     t->table[0x2] = &OP_2nnn;
@@ -393,15 +403,15 @@ void init_chip8FuncTable(chip8FuncTable* t){
     t->tableF[0x55] = &OP_Fx55;
     t->tableF[0x65] = &OP_Fx65;
 }
-void get_from_table0(chip8FuncTable* t, Chip8* c8){
+void get_from_table0(chip8OPTable* t, Chip8* c8){
     t->table0[c8->opcode & 0x000F]();
 }
-void get_from_table8(chip8FuncTable* t, Chip8* c8){
+void get_from_table8(chip8OPTable* t, Chip8* c8){
     t->table8[c8->opcode & 0x000F]();
 }
-void get_from_tableE(chip8FuncTable* t, Chip8* c8){
+void get_from_tableE(chip8OPTable* t, Chip8* c8){
     t->tableE[c8->opcode & 0x000F]();
 }
-void get_from_tableF(chip8FuncTable* t, Chip8* c8){
+void get_from_tableF(chip8OPTable* t, Chip8* c8){
     t->tableF[c8->opcode & 0x000F]();
 }
